@@ -1,0 +1,11 @@
+{
+  "matched_tracts": 199,
+  "unmatched_tracts": 0,
+  "mapped_areas": 56,
+  "named_csas": 55,
+  "total_housing_units": 295032.0,
+  "vacant_housing_units": 39364.0,
+  "zero_denominator_areas": [
+    "Unassigned -- Jail"
+  ]
+}
