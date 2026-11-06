@@ -1,46 +1,52 @@
-# Baltimore Census Map Demo
+# Baltimore: two maps, two stories
 
-Build an attractive, entirely static pair of side-by-side choropleths of poverty rate and open vacant-building notice counts by Baltimore Community Statistical Area (CSA).
-Use 2020–2024 ACS poverty estimates on the left and a dated city open-VBN count snapshot on the right. Keep measures, periods, and legends distinct.
+Build a polished static app with two CSA choropleths side by side:
+- **Left:** Census poverty rate, 2020–2024 ACS.
+- **Right:** city open Vacant Building Notice counts, dated snapshot.
 
-## Work in stages
-1. Load the 2020 CSA polygons on a Leaflet map. Neutral fills, names, attribution, fit Baltimore.
-2. Fetch ACS B17001 tract poverty counts and BNIA's 2020 tract-to-CSA crosswalk. Join and shade CSAs by poverty percentage, then add a second notice-count choropleth using the neighborhood crosswalk. Include legend, selection details, and clear missing-data states.
-3. Save public data snapshots with source URLs and dates. Finish a polished responsive app that works on GitHub Pages.
+## Demo stages
 
-Start Stage 1 only, show it, and wait for the presenter to request the next stage.
+Complete one stage, demonstrate it, then wait for the presenter to continue.
+1. **Map:** show 2020 CSA boundaries, neutral fills, names, and attribution.
+2. **City records:** join neighborhood notice counts to CSAs; add a count choropleth.
+3. **Census:** roll tract poverty counts up to CSAs; show poverty on the left and notices on the right.
+4. **Polish:** shared area selection, separate legends, responsive layout, saved data, GitHub Pages readiness.
+
+If a working app already exists, preserve it and improve only the requested stage.
 
 ## Stack
-Use Bundless for React 17/JSX, Leaflet 1.9.4, and pinned CDN dependencies.
-Follow https://bundless.dev/usage.html. Use ReactDOM.render and a ref/effect for Leaflet.
-Import map: react -> https://esm.sh/react@17.0.2/es2022/react.mjs and react-dom -> https://esm.sh/react-dom@17.0.2/es2022/react-dom.mjs.
-Load App.jsx using a text/jsx script and https://unpkg.com/bundlessdev@1.0.12/dist/bundless.sucrase.min.js as a module.
-No bundler, build step, backend, proxy, or API keys in the app.
-Run only `python3 -m http.server 8000 --bind 127.0.0.1`.
 
-## Data
-- Census table: https://data.census.gov/table/ACSDT5Y2024.B17001?g=050XX00US24510$1400000
-- Key-free Census Reporter mirror: https://api.censusreporter.org/1.0/data/show/acs2024_5yr?table_ids=B17001&geo_ids=140%7C05000US24510
-- Crosswalk: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/Tract2020_to_CSA2020/FeatureServer/0
-- Polygons: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/Community_Statistical_Areas_2020/FeatureServer/0
+Use Bundless, React 17, Leaflet 1.9.4, and pinned CDNs. No build step or backend.
+- Import map: `react` → `https://esm.sh/react@17.0.2/es2022/react.mjs`; `react-dom` → `https://esm.sh/react-dom@17.0.2/es2022/react-dom.mjs`.
+- Load `./App.jsx` as `text/jsx`, then `https://unpkg.com/bundlessdev@1.0.12/dist/bundless.sucrase.min.js` as a module. Use `ReactDOM.render`.
+- Include Leaflet CSS. Use OpenStreetMap tiles with attribution; no map API key.
+- Serve only with `python3 -m http.server 8000 --bind 127.0.0.1`.
 
-Download the mirror during preparation using a project-specific User-Agent, for example `BaltimoreCSAHousingWorkshop/1.0 (educational static map demo)`. Save the public response; the browser should use local snapshots. Official Census API currently requires a key.
-ArcGIS: append /query, where=1=1, outFields=*, f=json; polygons use f=geojson and outSR=4326. Fetch all pages if limited.
+## Sources
 
-## Join correctly
-Census Reporter geography keys are `14000US` plus the 11-digit tract GEOID. Match that GEOID to crosswalk `GEOID_Tract_2020`. Keep IDs as strings.
-Group by `Community_Statistical_Area_2020`; match polygon `CSA2020`.
-B17001 fields: B17001001 population for whom poverty status is determined; B17001002 people below poverty (mirror spelling).
-Sum counts first. CSA poverty percent = 100 * sum(below poverty) / sum(poverty-status population). Never average tract percentages.
-These sources have 199 matching tracts and 56 areas: 55 named CSAs plus `Unassigned -- Jail`. Keep jail separate from ordinary CSA summaries. Preserve null/negative sentinel values as missing, not zero. Zero denominator means no rate. Match city Neighborhood to crosswalk NSA2020, then group by CSA2020. Normalize whitespace/case; explicitly correct Greentown/Bayview to Greektown/Bayview. This is a neighborhood assignment, not an exact spatial point join. Reconcile assigned plus unmatched notices to the source count. Show zero separately from missing.
-Show period, source, and that these are survey estimates with uncertainty. Poverty and notice counts have different units and dates. Do not imply causation or compare color intensity as a shared numerical scale. Counts reflect area size too. Link selection across both maps; provide separate numeric legends; stack maps on phones. Do not average medians or invent precision; retain source margins of error and avoid significance claims.
+- CSA shapes: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/Community_Statistical_Areas_2020/FeatureServer/0
+- City notices: https://baltegis.baltimorecity.gov/mapping/rest/services/Housing/DHCD_Open_Baltimore_Datasets/FeatureServer/1
+- Neighborhood → CSA: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/NSA2020_to_CSA2010_and_CSA2020_Crosswalk/FeatureServer/0
+- Tract → CSA: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/Tract2020_to_CSA2020/FeatureServer/0
+- ACS poverty counts: https://api.censusreporter.org/1.0/data/show/acs2024_5yr?table_ids=B17001&geo_ids=140%7C05000US24510
 
-## Finish
-Reconcile tract and CSA totals, report unmatched/duplicate IDs, verify polygon names and zero/missing states. Test in a browser at root and a project subdirectory.
-Use relative asset paths and root index.html. Keep data in data/ with provenance. No SPA rewrites.
-Commit each working stage. Prepare GitHub Pages from main at /; publish only when asked.
+Download ACS with a project-specific User-Agent, such as `BaltimoreCSAWorkshop/1.0 (educational demo)`. Use saved snapshots in the browser, not API keys.
+ArcGIS: append `/query`; use `where=1=1`, `outFields=*`, `f=json`. Shapes use `f=geojson&outSR=4326`. Retrieve all pages.
 
-## City notice-count sources
-- Open VBNs: https://baltegis.baltimorecity.gov/mapping/rest/services/Housing/DHCD_Open_Baltimore_Datasets/FeatureServer/1
-- Neighborhood crosswalk: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/NSA2020_to_CSA2010_and_CSA2020_Crosswalk/FeatureServer/0
-For quick counts query groupByFieldsForStatistics=Neighborhood, outFields=Neighborhood, returnGeometry=false and outStatistics=[{"statisticType":"count","onStatisticField":"OBJECTID","outStatisticFieldName":"notice_count"}]. Fetch all pages if limited. Check returnCountOnly=true separately and preserve source counts and unmatched rows. Save dated snapshots; no runtime API dependency.
+## Two joins
+
+**Notices:** group city records by `Neighborhood`, count `OBJECTID`, match crosswalk `NSA2020`, then sum by `CSA2020`. Trim/case-normalize names; explicitly correct `Greentown/Bayview` to `Greektown/Bayview`. This is BNIA's neighborhood assignment, not an exact point-in-polygon join.
+
+**Poverty:** strip `14000US` from Census Reporter geography keys; match the remaining 11-digit string to `GEOID_Tract_2020`. Group by `Community_Statistical_Area_2020`; match polygon `CSA2020`.
+- `B17001001`: population with poverty status determined.
+- `B17001002`: people below poverty.
+- **CSA rate = 100 × summed below-poverty population / summed poverty-status population.** Never average tract percentages.
+
+## Finish clearly
+
+- Keep 55 CSAs and the separate `Unassigned -- Jail` area. Distinguish zero, missing data, and zero denominators.
+- Check duplicate/unmatched joins and reconcile totals. Preparation matched 199 tracts and 11,368 notices; refreshed counts may change.
+- Label units, periods, and numeric legend breaks. Poverty is an estimate; notices are counts. Different periods and community sizes matter. Do not imply causation.
+- Save public data and source URLs/dates in `data/`. Retain Census margins of error; avoid significance claims.
+- Test selection, both maps, mobile layout, and subdirectory hosting in a browser.
+- Use root `index.html` and relative paths. Commit each working stage. Prepare Pages from `main` at `/`; publish only when asked.
