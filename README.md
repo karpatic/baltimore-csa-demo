@@ -1,31 +1,41 @@
-# Baltimore housing atlas
+# Baltimore community atlas
 
-Finished Codex workshop example: ACS tract counts joined to BNIA's 2020 CSAs and displayed as a vacancy-rate choropleth.
+Two static choropleths with shared CSA selection:
+
+- Left: estimated poverty rate from 2020–2024 ACS table B17001.
+- Right: open Vacant Building Notice record counts from the city, snapshot dated in the app.
 
 ## Run
 
-```sh
-python3 -m http.server 8000 --bind 127.0.0.1
+`python3 -m http.server 8000 --bind 127.0.0.1`
+
+Open http://127.0.0.1:8000. No build, backend, or API key. Internet is needed for pinned CDN libraries, fonts, and OpenStreetMap tiles. Bundless 1.0.12 Sucrase handles React 17 JSX.
+
+Select a CSA on either map or from the dropdown to highlight it on both. Separate legends use percentage bins on the left and notice-count bins on the right. Boundaries-only mode demonstrates the first stage. Maps stack on phones.
+
+## Method
+
+Match 199 Census tract GEOIDs to BNIA's 2020 tract-to-CSA crosswalk. Sum B17001 below-poverty population and poverty-status population separately, then calculate the CSA percentage. Never average tract rates. All 199 tracts matched: 109,292 people below poverty out of a poverty-status population of 553,387. Source margins of error remain in data/acs-source.json. These are survey estimates, not significance tests.
+
+Group city notice records by Neighborhood, match BNIA NSA2020, then sum by CSA2020. All 11,368 notices assigned, no unmatched neighborhoods. Explicitly correct BNIA's Greentown/Bayview typo to Greektown/Bayview. This uses BNIA's neighborhood assignment rather than an exact point-in-polygon spatial join.
+
+Both maps use 55 CSA polygons plus the separate jail area. The jail has no poverty denominator and is gray on that map. Zero counts are colored in the first count bin, distinct from missing data.
+
+Different measures and periods: the maps illustrate patterns but do not establish causation. Notice counts are not vacancy rates, and counts reflect community size.
+
+## Refresh and provenance
+
+All runtime data is saved under data/. Census sources and timestamps are in sources.json; notice provenance and reconciliation are in vbn-counts.json.
+
+Optional preparation (Python requests required):
+
+```
+python3 prepare-data.py
+python3 prepare-vbn.py
 ```
 
-Open http://127.0.0.1:8000. No build, package installation, API key, or backend is required. Internet access is needed for pinned CDN libraries, fonts, and OpenStreetMap tiles.
-
-The Boundaries button shows the first demo stage; Vacancy shows the completed rollup. Select an area on the map or in the dropdown.
-
-## Data and calculation
-
-2020–2024 ACS five-year estimates, table B25002, downloaded through Census Reporter. All 199 Baltimore city tracts match BNIA's 2020 tract-to-CSA crosswalk. Sum vacant and total housing units separately, then calculate `100 * vacant / total`. Do not average tract percentages.
-
-55 named CSAs contain 295,032 estimated housing units and 39,364 estimated vacant units (13.3%). The 56th polygon, Unassigned -- Jail, has zero housing units and is gray, with no calculated rate. These are survey estimates, not current city Vacant Building Notices or significance tests. Source margins of error remain in data/acs-source.json.
-
-All source URLs and retrieval timestamps are in data/sources.json. Raw counts, crosswalk, boundaries, rollup, and a validation receipt are saved in data/.
-
-Optional data refresh: `python3 prepare-data.py` (requires Python requests). This preparation script is not a server or build step. Review refreshed data before presenting.
+These scripts are data preparation, not build steps or servers. They fail on truncated or unmatched sources; inspect refreshed output before presenting. Runtime never requires live data APIs.
 
 ## GitHub Pages
 
-Push this repository to the intended GitHub repository, then Settings → Pages → Deploy from a branch → main → / (root). Relative paths support a project subdirectory. This copy has not been published.
-
-## Browser verification
-
-Verified with the static server under /Codex/: 56 map shapes, five vacancy color bins plus the no-rate bin, loaded map tiles, boundary/vacancy switching, and Canton selection (489 / 4,454 = 11.0%). Data preparation reconciles all tract and CSA totals. Bundless 1.0.12's Sucrase runtime is used because the published Acorn runtime failed with this JSX.
+Push to the intended repository, then Settings → Pages → Deploy from a branch → main → / (root). Relative paths work in a project subdirectory. Not published.
