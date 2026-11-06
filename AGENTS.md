@@ -1,56 +1,33 @@
-# BNIA Data Lab
+# Baltimore VBN Map Demo
 
-## Goal
+## What to build
 
-Build an interactive choropleth of Baltimore's Community Statistical Areas
-(CSAs), shaded by vacant building notice (VBN) count. Discover the public data,
-join individual VBN points to CSA boundary polygons, and calculate the counts.
-The spatial join is the main demonstration. Do not add census comparisons or
-trend projections.
+Create a local web app that answers: **How many open vacant building notices are
+in each Baltimore Community Statistical Area (CSA)?**
 
-## Data discovery
+Show the answer on an interactive choropleth: shade each CSA by its notice count.
+The main task is joining point locations to boundary polygons. No census data
+or forecasts are needed.
 
-Start with the public portals:
+## Use these two datasets
 
-- Open Baltimore: https://data.baltimorecity.gov/
-- BNIA mapping: https://mapping-bniajfi.opendata.arcgis.com/
-- BNIA Vital Signs: https://vital-signs-bniajfi.hub.arcgis.com/
+- **Open VBN locations:** https://baltegis.baltimorecity.gov/mapping/rest/services/Housing/DHCD_Open_Baltimore_Datasets/FeatureServer/1
+- **BNIA CSA boundaries:** https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/Community_Statistical_Areas_2020/FeatureServer/0
 
-Candidate services to inspect and verify before using:
+Inspect the fields and geometry before using them. Fetch all records, including
+every page, and put both datasets in the same coordinate system.
 
-- Individual VBN locations: https://baltegis.baltimorecity.gov/mapping/rest/services/Housing/DHCD_Open_Baltimore_Datasets/FeatureServer/1
-- CSA boundaries: https://services1.arcgis.com/mVFRs7NF4iFitgbY/arcgis/rest/services/Community_Statistical_Areas_2020/FeatureServer/0
+## Make it work
 
-Check the publisher, schema, geometry, and dates. Use individual location records,
-not an already summarized citywide or tract-level table. Fetch every query page.
-Record source URLs and retrieval dates with the downloaded data.
+- Find which CSA contains each VBN point, then count notices per CSA.
+- Preserve source IDs and avoid counting duplicate notices or boundary points twice.
+- Account for missing or unmatched points. Keep `Unassigned -- Jail` separate.
+- Use a light-to-dark color scale and a legend labeled **Open VBN count**.
+- Clicking a CSA should show its name and count. Make zero and missing data distinct.
+- Keep the app simple and easy to run locally. Choose libraries as needed.
 
-## Implementation
+## Before finishing
 
-- Explain your approach briefly, then build a working local application.
-- Prefer a lightweight browser app. Use libraries when they help.
-- Preserve raw source data and IDs; keep calculations separate from display code.
-- Put points and polygons in the same coordinate reference system before joining.
-- Handle points on polygon boundaries explicitly. Never count a point twice.
-- Inspect duplicate notice and property IDs. Clearly label whether totals count
-  notices or unique buildings.
-- Keep unmatched points, missing coordinates, and ambiguous assignments visible
-  in a reconciliation summary. Keep `Unassigned -- Jail` separate from named CSAs.
-- Show each CSA's name and count when selected. Include a sequential color legend
-  with numeric breaks. Distinguish zero counts from missing data.
-- Label the map as counts, not a vacancy rate. Do not invent a denominator.
-- Keep the application local. Do not publish or modify existing websites.
-
-## Checks
-
-- Reconcile fetched records with the service count and check pagination.
-- Test known inside, outside, and boundary points.
-- After any documented deduplication, assigned totals plus exceptions must equal
-  the input total.
-- Verify that map colors, legend ranges, and selected-CSA counts agree.
-- Confirm the application loads locally and explain how to run it.
-
-## Handoff
-
-Summarize what works, what you checked, and what remains incomplete. Keep these
-instructions current if the project changes.
+Check that all fetched notices are accounted for and that map colors, legend,
+and popup counts agree. Show the data sources and retrieval date in the app.
+Explain how to run it and mention anything incomplete. Do not publish it.
